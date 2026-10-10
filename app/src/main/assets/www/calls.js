@@ -10,9 +10,10 @@ function callPerms(video) {
 }
 
 // ---------- the ring: a soft two-tone, and a buzz for the incoming one ----------
-function stopRing() { clearInterval(ringT); ringT = 0; }
+function stopRing() { clearInterval(ringT); ringT = 0; N('ringStop'); }
 function startRing(kind) {
   stopRing();
+  if (kind === 'in' && window.SLNative && typeof SLNative.ringStart === 'function' && !window.__noNativeRing) { N('ringStart'); hp('heavy'); ringT = setInterval(() => hp('heavy'), 1600); return; }   // the phone plays the chosen sound pack as the ringtone
   try {
     const ac = ringCtx || (ringCtx = new (window.AudioContext || window.webkitAudioContext)()); if (ac.resume) ac.resume();
     const tone = (at, dur) => [440, 480].forEach((f) => { const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.value = f; g.gain.setValueAtTime(0, at); g.gain.linearRampToValueAtTime(kind === 'in' ? .09 : .05, at + .05); g.gain.setValueAtTime(kind === 'in' ? .09 : .05, at + dur - .06); g.gain.linearRampToValueAtTime(0, at + dur); o.connect(g); g.connect(ac.destination); o.start(at); o.stop(at + dur + .02); });

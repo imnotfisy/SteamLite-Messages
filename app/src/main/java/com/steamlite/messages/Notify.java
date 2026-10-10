@@ -18,6 +18,34 @@ import java.util.Map;
 /** Builds the notifications: chat messages (with a reply box), friend requests, reactions and streak reminders. */
 final class Notify {
     static final String MSG = "messages", ACT = "activity", QUIET = "quiet", CALL = "calls", CALLON = "callon";
+    /** The sound pack picked in Settings (glass, classic, arcade, crystal, deep, or system for the phone's own sounds). */
+    static String pack(Context c) { return c.getSharedPreferences("sl", Context.MODE_PRIVATE).getString("pack", "glass"); }
+    static android.net.Uri soundUri(Context c, String pack, String kind) {
+        int id = c.getResources().getIdentifier("snd_" + pack + "_" + kind, "raw", c.getPackageName());
+        return id == 0 ? null : android.net.Uri.parse("android.resource://" + c.getPackageName() + "/" + id);
+    }
+    /** The channel for a kind of notification (msg, act, ring) with the chosen pack's sound; a channel's sound cannot change later, so each pack gets its own. */
+    static String chan(Context c, String kind) {
+        String pack = pack(c); android.net.Uri u = "system".equals(pack) ? null : soundUri(c, pack, kind);
+        String def = "msg".equals(kind) ? MSG : "ring".equals(kind) ? CALL : ACT;
+        if (u == null || Build.VERSION.SDK_INT < 26) return def;
+        String id = kind + "_" + pack, label = pack.substring(0, 1).toUpperCase() + pack.substring(1);
+        NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm.getNotificationChannel(id) == null) {
+            boolean ring = "ring".equals(kind);
+            NotificationChannel ch = new NotificationChannel(id, ("msg".equals(kind) ? "Messages" : ring ? "Incoming calls" : "Friends and reminders") + " (" + label + ")", ring || "msg".equals(kind) ? NotificationManager.IMPORTANCE_HIGH : NotificationManager.IMPORTANCE_DEFAULT);
+            ch.setSound(u, new android.media.AudioAttributes.Builder().setUsage(ring ? android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE : android.media.AudioAttributes.USAGE_NOTIFICATION).setContentType(android.media.AudioAttributes.CONTENT_TYPE_SONIFICATION).build());
+            if (ring) { ch.enableVibration(true); ch.setVibrationPattern(new long[]{0, 700, 400, 700, 400, 700}); ch.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC); }
+            nm.createNotificationChannel(ch);
+        }
+        return id;
+    }
+    /** After the pack changes, the channels of the other packs are removed so the phone's notification settings stay tidy. */
+    static void pruneChannels(Context c) {
+        if (Build.VERSION.SDK_INT < 26) return;
+        NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE); String pack = pack(c);
+        for (NotificationChannel ch : nm.getNotificationChannels()) { String id = ch.getId(); if ((id.startsWith("msg_") || id.startsWith("act_") || id.startsWith("ring_")) && !id.endsWith("_" + pack)) nm.deleteNotificationChannel(id); }
+    }
     static int callNotifId(String cid) { return ("call" + cid).hashCode(); }
 
     static void channels(Context c) {
@@ -87,7 +115,7 @@ final class Notify {
         if ("msg".equals(t) && conv != null && !conv.isEmpty()) { message(c, conv, title, d.get("sender") != null ? d.get("sender") : d.get("from") == null ? title : d.get("from"), body, false); UnreadWidget.bump(c, title, body); return; }
         String target = "react".equals(t) && conv != null ? conv : ("deal".equals(t) || "free".equals(t)) ? "game:" + d.get("appid") : "#friends";
         int id = "friend".equals(t) ? 77 : "streak".equals(t) ? 78 : "deal".equals(t) ? 79 : "free".equals(t) ? 80 : ("react" + conv).hashCode();
-        Notification.Builder b = builder(c, quietNow(sp) ? QUIET : ACT).setSmallIcon(R.drawable.ic_stat).setContentTitle(title).setContentText(body).setStyle(new Notification.BigTextStyle().bigText(body))
+        Notification.Builder b = builder(c, quietNow(sp) ? QUIET : chan(c, "act")).setSmallIcon(R.drawable.ic_stat).setContentTitle(title).setContentText(body).setStyle(new Notification.BigTextStyle().bigText(body))
                 .setContentIntent(open(c, id, target)).setAutoCancel(true).setColor(0xff8b5cf6).setWhen(System.currentTimeMillis());
         post(c, id, b.build());
     }
@@ -100,7 +128,7 @@ final class Notify {
         int id = callNotifId(cid);
         PendingIntent tap = open(c, id, "call:" + cid), answer = open(c, id + 1, "call:" + cid + ":accept");
         PendingIntent decl = PendingIntent.getBroadcast(c, id, new Intent(c, CallReceiver.class).putExtra("cid", cid), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-        Notification.Builder b = builder(c, CALL).setSmallIcon(R.drawable.ic_stat).setContentTitle(title).setContentText(video ? "Incoming video call" : "Incoming voice call").setContentIntent(tap).setFullScreenIntent(tap, true)
+        Notification.Builder b = builder(c, chan(c, "ring")).setSmallIcon(R.drawable.ic_stat).setContentTitle(title).setContentText(video ? "Incoming video call" : "Incoming voice call").setContentIntent(tap).setFullScreenIntent(tap, true)
                 .setCategory(Notification.CATEGORY_CALL).setOngoing(true).setAutoCancel(true).setColor(0xff8b5cf6).setWhen(System.currentTimeMillis())
                 .addAction(new Notification.Action.Builder(Icon.createWithResource(c, R.drawable.ic_stat), "Decline", decl).build())
                 .addAction(new Notification.Action.Builder(Icon.createWithResource(c, R.drawable.ic_stat), "Answer", answer).build());
@@ -132,7 +160,7 @@ final class Notify {
         Intent ri2 = new Intent(c, ReplyReceiver.class).putExtra("conv", conv).putExtra("title", title);
         PendingIntent rp = PendingIntent.getBroadcast(c, id, ri2, PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0));
         Notification.Action act = new Notification.Action.Builder(Icon.createWithResource(c, R.drawable.ic_stat), "Reply", rp).addRemoteInput(ri).build();
-        Notification.Builder b = builder(c, quietNow(sp) ? QUIET : MSG).setSmallIcon(R.drawable.ic_stat).setContentTitle(title).setContentText(text).setStyle(st).addAction(act)
+        Notification.Builder b = builder(c, quietNow(sp) ? QUIET : chan(c, "msg")).setSmallIcon(R.drawable.ic_stat).setContentTitle(title).setContentText(text).setStyle(st).addAction(act)
                 .setContentIntent(open(c, id, conv)).setAutoCancel(true).setColor(0xff8b5cf6).setCategory(Notification.CATEGORY_MESSAGE).setWhen(System.currentTimeMillis()).setOnlyAlertOnce(mine);
         if (Build.VERSION.SDK_INT < 26) b.setPriority(Notification.PRIORITY_HIGH);
         post(c, id, b.build());

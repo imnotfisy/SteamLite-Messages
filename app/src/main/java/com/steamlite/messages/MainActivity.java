@@ -203,6 +203,9 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onDestroy() { super.onDestroy(); Ringer.stop(); if (inst == this) inst = null; }
+
+    @Override
     protected void onPause() { super.onPause(); foreground = false; leftAt = System.currentTimeMillis(); }
 
     /** When the app is not on screen, nothing in the page should keep running (timers, animations): that is most of the battery use. */
@@ -533,6 +536,25 @@ public void askNotif() {
         public void setSpeaker(final boolean on) {
             ui.post(() -> { try { android.media.AudioManager am = (android.media.AudioManager) getSystemService(AUDIO_SERVICE); if (am != null) am.setSpeakerphoneOn(on); } catch (Exception e) { } });
         }
+
+        /** The sound pack for notifications and incoming calls. */
+        @JavascriptInterface
+        public void setSoundPack(String p) { sp.edit().putString("pack", p == null || p.isEmpty() ? "glass" : p).apply(); ui.post(() -> Notify.pruneChannels(MainActivity.this)); }
+
+        /** Plays a pack's sound (kind: msg, act or ring) once, for the preview in Settings. */
+        @JavascriptInterface
+        public void soundPlay(final String pack, final String kind) { ui.post(() -> Ringer.play(MainActivity.this, pack, kind, false)); }
+
+        /** The message sound while the app is open (silent during quiet hours or when everything is paused). */
+        @JavascriptInterface
+        public void inAppSound() { ui.post(() -> { if (sp.getBoolean("muteAll", false) || Notify.quietNow(sp)) return; Ringer.play(MainActivity.this, Notify.pack(MainActivity.this), "msg", false); }); }
+
+        /** The incoming-call ringtone, looping until ringStop(). */
+        @JavascriptInterface
+        public void ringStart() { ui.post(() -> Ringer.play(MainActivity.this, Notify.pack(MainActivity.this), "ring", true)); }
+
+        @JavascriptInterface
+        public void ringStop() { ui.post(() -> Ringer.stop()); }
 
         @JavascriptInterface
         public void recStart() {

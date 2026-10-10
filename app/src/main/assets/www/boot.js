@@ -44,7 +44,7 @@ async function boot() {
   if (cm) { S.me = cm; if (co) { S.ov = co; S.byUid = {}; co.friends.forEach((f) => { S.byUid[f.uid] = f; }); lastUnread = {}; co.convs.forEach((c) => { lastUnread[c.id] = c.unread; }); } showApp(); updateBadges(); }
   const m = await api('GET', '/me');
   if (!m.steamid) { if (!S.me && m.http !== 401) { $('#signin').innerHTML = `<div class="empty"><h3>Could not reach SteamLite</h3>${esc(m.error || '')}<br><br><button class="btn pri" onclick="boot()">Try again</button></div>`; $('#signin').classList.add('on'); hideSplash(); } return; }
-  S.me = Object.assign(S.me || {}, m); cset('me', S.me); showApp(); startPolling(); pushNt(); pushDnd(); N('setMuteAll', ls.get('muteAll') === '1'); N('setLock', ls.get('lock') === '1');
+  S.me = Object.assign(S.me || {}, m); cset('me', S.me); showApp(); startPolling(); pushNt(); pushDnd(); N('setSoundPack', soundPack()); N('setMuteAll', ls.get('muteAll') === '1'); N('setLock', ls.get('lock') === '1');
   api('GET', '/social/gif?q=').then((g) => { S.gifOk = !!(g && g.ok); });
   setTimeout(notifCheck, 3500); checkUpdate(false); const crash = N('takeCrash'); if (crash) reportError('crash: ' + crash);
   // reopen the chat you were in if the app was closed a moment ago

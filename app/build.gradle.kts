@@ -22,8 +22,8 @@ android {
         applicationId = "com.steamlite.messages"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.0.2"
         // push: when this app is registered in Firebase (google-services.json holds its package), the plugin below is used.
         // Until then the Firebase settings of the SteamLite Mobile project are used, read from the same file.
         val gs = file("google-services.json")

@@ -108,7 +108,7 @@ function morphList(box, items, o = {}) {
 
 // ---------- toast, banner, sheet, dialog ----------
 function toast(t, icon) { const e = $('#toast'); e.innerHTML = (icon ? ic(icon, 18) : '') + '<span>' + esc(t) + '</span>'; e.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove('on'), 2600); }
-function showBanner(b) { const e = $('#banner'); e.innerHTML = avatar(b.u, 42) + `<div class="grow"><b class="ell">${esc(b.title)}</b><span class="ell">${esc(b.text)}</span></div>`; e.onclick = () => { e.classList.remove('on'); b.tap && b.tap(); }; e.classList.add('on'); hp('tap'); clearTimeout(showBanner.t); showBanner.t = setTimeout(() => e.classList.remove('on'), 4200); }
+function showBanner(b) { const e = $('#banner'); e.innerHTML = avatar(b.u, 42) + `<div class="grow"><b class="ell">${esc(b.title)}</b><span class="ell">${esc(b.text)}</span></div>`; e.onclick = () => { e.classList.remove('on'); b.tap && b.tap(); }; e.classList.add('on'); hp('tap'); if (ls.get('inapp') !== '0') N('inAppSound'); clearTimeout(showBanner.t); showBanner.t = setTimeout(() => e.classList.remove('on'), 4200); }
 let sheetOn = false;
 function openSheet(html, o = {}) {
   const sh = $('#sheet'); sh.scrollTop = 0; sh.innerHTML = '<div class="grab"></div>' + html; sh.style.transform = ''; sh.classList.add('on'); $('#sheetbg').classList.add('on'); sheetOn = true; sh.__close = o.onClose || null;
