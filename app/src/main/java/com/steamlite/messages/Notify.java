@@ -19,17 +19,19 @@ import java.util.Map;
 final class Notify {
     static final String MSG = "messages", ACT = "activity", QUIET = "quiet", CALL = "calls", CALLON = "callon";
     /** The sound pack picked in Settings (glass, classic, arcade, crystal, deep, or system for the phone's own sounds). */
+    /** Bump this when the sound files change: a channel keeps the sound it was created with, so new sounds need new channels. */
+    static final String CHV = "_2";
     static String pack(Context c) { return c.getSharedPreferences("sl", Context.MODE_PRIVATE).getString("pack", "glass"); }
     static android.net.Uri soundUri(Context c, String pack, String kind) {
-        int id = c.getResources().getIdentifier("snd_" + pack + "_" + kind, "raw", c.getPackageName());
-        return id == 0 ? null : android.net.Uri.parse("android.resource://" + c.getPackageName() + "/" + id);
+        if (c.getResources().getIdentifier("snd_" + pack + "_" + kind, "raw", c.getPackageName()) == 0) return null;
+        return android.net.Uri.parse("android.resource://" + c.getPackageName() + "/raw/snd_" + pack + "_" + kind);   // by name: a number could change when the app is updated
     }
     /** The channel for a kind of notification (msg, act, ring) with the chosen pack's sound; a channel's sound cannot change later, so each pack gets its own. */
     static String chan(Context c, String kind) {
         String pack = pack(c); android.net.Uri u = "system".equals(pack) ? null : soundUri(c, pack, kind);
         String def = "msg".equals(kind) ? MSG : "ring".equals(kind) ? CALL : ACT;
         if (u == null || Build.VERSION.SDK_INT < 26) return def;
-        String id = kind + "_" + pack, label = pack.substring(0, 1).toUpperCase() + pack.substring(1);
+        String id = kind + "_" + pack + CHV, label = pack.substring(0, 1).toUpperCase() + pack.substring(1);
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm.getNotificationChannel(id) == null) {
             boolean ring = "ring".equals(kind);
@@ -44,7 +46,7 @@ final class Notify {
     static void pruneChannels(Context c) {
         if (Build.VERSION.SDK_INT < 26) return;
         NotificationManager nm = (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE); String pack = pack(c);
-        for (NotificationChannel ch : nm.getNotificationChannels()) { String id = ch.getId(); if ((id.startsWith("msg_") || id.startsWith("act_") || id.startsWith("ring_")) && !id.endsWith("_" + pack)) nm.deleteNotificationChannel(id); }
+        for (NotificationChannel ch : nm.getNotificationChannels()) { String id = ch.getId(); if ((id.startsWith("msg_") || id.startsWith("act_") || id.startsWith("ring_")) && !id.endsWith("_" + pack + CHV)) nm.deleteNotificationChannel(id); }
     }
     static int callNotifId(String cid) { return ("call" + cid).hashCode(); }
 
