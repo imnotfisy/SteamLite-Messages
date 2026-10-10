@@ -83,6 +83,12 @@ const linkify = (t) => esc(t).replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"])/g, 
 const firstUrl = (t) => { const m = /https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"]/.exec(t || ''); return m ? m[0] : ''; };
 const jumbo = (t) => /^(\p{Extended_Pictographic}|‍|️|\s){1,3}$/u.test(t || '') && String(t || '').trim().length > 0;
 
+// a row that was removed (deleted message, handled request...) slides out and the rows below close the gap
+function exitEl(el) {
+  const h = el.offsetHeight, dx = el.classList.contains('mine') ? 30 : -30; el.style.pointerEvents = 'none'; el.style.overflow = 'hidden';
+  try { const an = el.animate([{ height: h + 'px', opacity: 1, transform: 'none' }, { height: '0px', opacity: 0, transform: 'translateX(' + dx + 'px)', paddingTop: '0px', paddingBottom: '0px', marginTop: '0px', marginBottom: '0px' }], { duration: 290, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }); an.onfinish = () => el.remove(); } catch (e) { el.remove(); }
+  setTimeout(() => el.remove(), 450);
+}
 // ---------- keyed list update (no flicker, optional slide for reordered rows) ----------
 function createEl(html) { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; }
 function morphList(box, items, o = {}) {
@@ -94,7 +100,8 @@ function morphList(box, items, o = {}) {
     else if (el.__h !== it.html) { const n = createEl(it.html), keep = el.classList.contains('in-anim'); el.innerHTML = n.innerHTML; el.className = n.className + (keep ? ' in-anim' : ''); const st = n.getAttribute('style'); if (st) el.setAttribute('style', st); else el.removeAttribute('style'); [...n.attributes].forEach((a) => { if (a.name !== 'class' && a.name !== 'style') el.setAttribute(a.name, a.value); }); el.__h = it.html; }
     used.add(it.k); const want = prev ? prev.nextSibling : box.firstChild; if (el !== want) box.insertBefore(el, want); prev = el;
   });
-  for (const [k, el] of map) if (!used.has(k)) { map.delete(k); el.remove(); }
+  const gone = []; for (const [k, el] of map) if (!used.has(k)) { map.delete(k); gone.push(el); }
+  gone.forEach((el) => { if (first || gone.length > 3 || o.noExit || !el.isConnected || !el.offsetHeight) el.remove(); else exitEl(el); });   // a removed row fades out and closes up instead of vanishing
   if (before) for (const [k, top] of before) { const el = map.get(k); if (!el) continue; const d = top - el.getBoundingClientRect().top; if (Math.abs(d) > 2) el.animate([{ transform: `translateY(${d}px)` }, { transform: 'none' }], { duration: 340, easing: 'cubic-bezier(.22,1,.36,1)' }); }
   return added;
 }

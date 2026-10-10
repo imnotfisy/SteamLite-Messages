@@ -423,3 +423,11 @@ html.rm .sp-logo,html.rm .sp-name,html.rm .sp-line,html.rm .sp-glow{opacity:1;tr
 #callbar.on{transform:translate(-50%,0);opacity:1;visibility:visible;pointer-events:auto;transition:transform .45s var(--ease),opacity .25s}
 #callbar b{overflow:hidden;text-overflow:ellipsis;font-weight:700}
 #callbar .rd{width:8px;height:8px;border-radius:50%;background:#04281a;animation:cpulse 1.2s infinite}
+
+/* a screen that slides away stays visible until it has gone (it used to vanish at once, so there was no closing animation) */
+.layer{transition:transform .42s var(--ease),visibility 0s .42s}
+.layer.on{transition:transform .42s var(--ease),visibility 0s 0s}
+@media (max-width:759px){
+  #screens{transition:transform .42s var(--ease),opacity .42s var(--ease)}
+  body:has(#chat.on) #screens,body:has(#pages .layer.on) #screens{transform:translateX(-28px);opacity:.55}
+}
