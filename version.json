@@ -1,7 +1,7 @@
 {
-  "version": "1.0.0",
-  "downloadUrl": "https://github.com/imnotfisy/SteamLite-Messages/releases/download/v1.0.0/SteamLite-Messages-1.0.0.apk",
-  "sha256": "707cefc08ec7bb4d991227b7122acbbbaad903332e6696032475608e67e1e295",
-  "size": 3405788,
-  "notes": "First release of SteamLite Messages: a messenger for your SteamLite friends. Chats with typing indicators and seen/delivered, photos, GIFs, voice messages, polls, group chats, voice and video calls, streaks, statuses, and many settings. Sign in with Steam or an email and password."
+  "version": "1.0.1",
+  "downloadUrl": "https://github.com/imnotfisy/SteamLite-Messages/releases/download/v1.0.1/SteamLite-Messages-1.0.1.apk",
+  "sha256": "f2f4b819391e717a1a6be916036ba054d5e00a8e744e156df1984027a6f52168",
+  "size": 3406280,
+  "notes": "Chats and pages now slide out when you leave them, removed items fade and close up smoothly, and the screen underneath shifts back slightly when a chat opens. Also adds voice and video calls, with a relay for connections between different networks."
 }
