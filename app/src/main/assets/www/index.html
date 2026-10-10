@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="color-scheme" content="dark light">
+<title>SteamLite Messages</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div id="splash" aria-hidden="true"><div class="sp-glow"></div><div class="sp-wrap"><div class="sp-logo"><svg viewBox="0 0 24 24"><path d="M12 2C6.5 2 2 5.8 2 10.5c0 2.4 1.2 4.6 3.2 6.1V21l4.1-2.6c.9.2 1.8.3 2.7.3 5.5 0 10-3.8 10-8.5S17.5 2 12 2z"/></svg></div><div class="sp-name">MESSAGES</div><div class="sp-line"><i></i></div></div></div>
+<div id="app">
+  <div id="screens">
+    <div id="off"></div>
+    <section class="screen" id="s-chats"></section>
+    <section class="screen" id="s-people"></section>
+    <section class="screen" id="s-status"></section>
+    <section class="screen" id="s-settings"></section>
+  </div>
+</div>
+<nav id="nav" class="away"><i class="pill"></i></nav>
+<div id="chat" class="layer w-aurora"></div>
+<div id="pages"></div>
+<div id="sheetbg"></div><div id="sheet"></div>
+<div id="dlgbg"></div><div id="dlg"></div>
+<div id="toast"></div><div id="banner"></div><div id="undo"></div><div id="viewer"></div><div id="cele"></div><div id="call"></div><div id="callbar"></div>
+<div id="signin"></div>
+<div id="lock"><div class="lg" style="width:84px;height:84px;border-radius:28px;background:var(--grad);display:grid;place-items:center"><svg viewBox="0 0 24 24" width="46" height="46" fill="#fff"><path d="M12 2C6.5 2 2 5.8 2 10.5c0 2.4 1.2 4.6 3.2 6.1V21l4.1-2.6c.9.2 1.8.3 2.7.3 5.5 0 10-3.8 10-8.5S17.5 2 12 2z"/></svg></div><b style="font-size:1.2em">Messages is locked</b><button class="btn pri" id="unlockbtn">Unlock</button></div>
+<script src="core.js"></script>
+<script src="shell.js"></script>
+<script src="chats.js"></script>
+<script src="chat.js"></script>
+<script src="composer.js"></script>
+<script src="calls.js"></script>
+<script src="people.js"></script>
+<script src="streaks.js"></script>
+<script src="status.js"></script>
+<script src="info.js"></script>
+<script src="settings.js"></script>
+<script src="boot.js"></script>
+</body></html>

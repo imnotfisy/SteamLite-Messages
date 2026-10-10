@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_desc">Your unread messages</string>
+    <string name="widget_streak_desc">Your longest friend streak</string>
+    <string name="sc_messages">Messages</string>
+    <string name="sc_messages_long">Open your messages</string>
+    <string name="sc_library">Streaks</string>
+    <string name="sc_library_long">See your friend streaks</string>
+    <string name="sc_add">Add friend</string>
+    <string name="sc_add_long">Add a friend with their code</string>
+</resources>
