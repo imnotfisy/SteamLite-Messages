@@ -1,7 +1,7 @@
 {
-  "version": "1.0.2",
-  "downloadUrl": "https://github.com/imnotfisy/SteamLite-Messages/releases/download/v1.0.2/SteamLite-Messages-1.0.2.apk",
-  "sha256": "c3d09e7bdb6ac9122683c2d25f50738d9c718bfe5bbb53eef98c5cbb3a0109b3",
-  "size": 3541572,
-  "notes": "Sound packs for notifications and incoming calls: pick Glass, Classic, Arcade, Crystal, Deep or your phone's default in Settings > Notifications. Incoming calls ring with the chosen pack, and new messages play the chime while the app is open."
+  "version": "1.0.3",
+  "downloadUrl": "https://github.com/imnotfisy/SteamLite-Messages/releases/download/v1.0.3/SteamLite-Messages-1.0.3.apk",
+  "sha256": "4beeea543874dc3e6665e3e82c996ce2faecd56163773c2c0ad4ad6758c50fb8",
+  "size": 3849276,
+  "notes": "Every sound pack now has its own long ringtone for incoming calls (about 14 to 16 seconds, made to loop): a bell melody for Glass, a warm jingle for Classic, a chiptune tune for Arcade, shimmering bells for Crystal and a low mellow tune for Deep. Also makes notification sounds more reliable across updates."
 }
