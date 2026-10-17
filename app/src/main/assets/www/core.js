@@ -24,10 +24,21 @@ window.__http = (id, code, text) => { const p = pend[id]; if (!p) return; delete
 const raw = (method, url, headers, body) => new Promise((res) => { const id = 'r' + (++seq); pend[id] = (c, t) => res({ code: c, text: t }); SLNative.http(id, method, url, JSON.stringify(headers || {}), body || ''); });
 function setOffline(v) { if (S.offline === v) return; S.offline = v; const o = $('#off'); if (o) { o.textContent = v ? 'You are offline. Messages will send when you are back.' : ''; o.classList.toggle('on', v); } if (!v && typeof flushQueue === 'function') flushQueue(); }
 function localDay(off = 0) { const d = new Date(Date.now() + off * 86400000); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+// ---------- maintenance watermark: shown while the server's admin has switched SteamLite Online off (it then answers 503 with offline:true) ----------
+var MAINT = false;
+function maint(on) {
+  on = !!on; if (on === MAINT) return; MAINT = on;
+  var e = document.getElementById('maint');
+  if (on) { if (!e) { e = document.createElement('div'); e.id = 'maint'; e.setAttribute('role', 'status'); e.innerHTML = '<i></i><span>Servers are undergoing maintenance</span>'; document.body.appendChild(e); } requestAnimationFrame(function () { e.classList.add('on'); }); }
+  else if (e) { e.classList.remove('on'); setTimeout(function () { if (!MAINT && e.parentNode) e.parentNode.removeChild(e); }, 400); }
+}
+function checkMaint() { try { Promise.resolve(raw('GET', BASE + '/health?t=' + Date.now(), {}, '')).then(function (r) { if (r && r.code === 503) { var j = {}; try { j = JSON.parse(r.text); } catch (e) { } maint(j.offline === true); } else if (r && r.code > 0) maint(false); }).catch(function () { }); } catch (e) { } }
+setTimeout(checkMaint, 2500); setInterval(checkMaint, 60000);
 async function api(method, path, body) {
   if (path === '/social/send' && body && !body.day) body.day = localDay();
   const h = { 'Content-Type': 'application/json' }; if (S.tok) h.Authorization = 'Bearer ' + S.tok;
   const r = await raw(method, BASE + path, h, body ? JSON.stringify(body) : ''); let j = {}; try { j = JSON.parse(r.text); } catch (e) { }
+  maint(r.code === 503 && j.offline === true);
   if (r.code === 401 && S.tok) signedOut();
   if (r.code === 0) { j = { error: 'No connection.' }; setOffline(true); } else setOffline(false);
   j.http = r.code; return j;
