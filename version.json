@@ -1,7 +1,7 @@
 {
-  "version": "1.0.3",
-  "downloadUrl": "https://github.com/imnotfisy/SteamLite-Messages/releases/download/v1.0.3/SteamLite-Messages-1.0.3.apk",
-  "sha256": "4beeea543874dc3e6665e3e82c996ce2faecd56163773c2c0ad4ad6758c50fb8",
-  "size": 3849276,
-  "notes": "Every sound pack now has its own long ringtone for incoming calls (about 14 to 16 seconds, made to loop): a bell melody for Glass, a warm jingle for Classic, a chiptune tune for Arcade, shimmering bells for Crystal and a low mellow tune for Deep. Also makes notification sounds more reliable across updates."
+  "version": "1.0.4",
+  "downloadUrl": "https://github.com/imnotfisy/SteamLite-Messages/releases/download/v1.0.4/SteamLite-Messages-1.0.4.apk",
+  "sha256": "f219ba7a2ba73dc816744410d773113b89499aeaaf22157286d6d94cdf40aa65",
+  "size": 3850108,
+  "notes": "Shows a \"Servers are undergoing maintenance\" notice while the SteamLite Online server is switched off for maintenance. IMPORTANT: this build is signed with a new key, so Android cannot install it over the old app. If the update fails, uninstall SteamLite Messages first and install this version again."
 }
